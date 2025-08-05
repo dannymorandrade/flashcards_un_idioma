@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validación de Idioma</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            text-transform: capitalize; /* Para que la primera letra del idioma se ponga en mayúscula */
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Selecciona un idioma</h2>
+        <div class="input-group">
+            <label for="languageInput">Ingresa el idioma:</label>
+            <input type="text" id="languageInput" placeholder="Ej. Español">
+        </div>
+        <button onclick="checkLanguage()">Aceptar</button>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        function checkLanguage() {
+            const input = document.getElementById('languageInput');
+            const message = document.getElementById('message');
+            const language = input.value.trim().toLowerCase(); // Convertir a minúsculas para una validación consistente
+
+            const validLanguages = ['español', 'inglés', 'francés', 'alemán', 'portugués']; // Puedes añadir más idiomas aquí
+
+            if (language === '') {
+                message.textContent = 'Por favor, ingresa un idioma.';
+                message.className = 'error';
+                return;
+            }
+
+            if (validLanguages.includes(language)) {
+                message.textContent = `¡Idioma "${input.value}" seleccionado!`;
+                message.className = 'success';
+                // Aquí puedes añadir la lógica para continuar con el idioma seleccionado
+            } else {
+                message.textContent = `"${input.value}" no es un idioma válido. Por favor, intenta de nuevo.`;
+                message.className = 'error';
+            }
+        }
+    </script>
+
+</body>
+</html>
