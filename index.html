@@ -188,7 +188,10 @@
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 
-                const trimmedLanguage = state.language.trim();
+                // Elimina los espacios en blanco al inicio y al final del idioma
+                state.language = state.language.trim(); 
+                const trimmedLanguage = state.language; // Usa el valor actualizado del estado
+
                 if (!isValidLanguage(trimmedLanguage)) {
                     languageError.classList.remove('hidden'); // Muestra el error
                     return; // Detiene el envío del formulario
