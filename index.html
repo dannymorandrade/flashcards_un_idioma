@@ -83,7 +83,7 @@
             error: null,
             isFetchingMore: false,
             // Importante: La clave de API se deja vacía para que Canvas la inyecte automáticamente.
-            apiKey: "REPLACE_ME_WITH_API_KEY" 
+            apiKey: "" 
         };
 
         // Definición de iconos SVG como cadenas de texto
@@ -279,12 +279,13 @@
 
                         <div id="flashcard" class="flashcard-container cursor-pointer" role="button" aria-label="Hacer clic para voltear la tarjeta">
                             <div class="flashcard-inner ${state.isFlipped ? 'flipped' : ''}">
-                                <div class="flashcard-front bg-white rounded-2xl shadow-lg">
+                                <div class="flashcard-front bg-white rounded-2xl shadow-lg flex flex-col justify-center items-center">
                                     <div class="absolute top-4 left-4 text-gray-500 uppercase text-sm font-semibold">${state.language}</div>
                                     <button id="speaker-front" class="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-colors" aria-label="Pronunciar">
                                         <div class="h-6 w-6 text-gray-500 flex items-center justify-center">${icons.SpeakerIcon}</div>
                                     </button>
-                                    <p class="text-3xl md:text-4xl text-center text-gray-800 px-10">${currentCard.source}</p>
+                                    <p class="text-3xl md:text-4xl text-center text-gray-800 px-10 mb-2">${currentCard.source}</p>
+                                    ${currentCard.phonetic ? `<p class="text-lg text-gray-500 px-10 font-mono">${currentCard.phonetic}</p>` : ''}
                                 </div>
                                 <div class="flashcard-back bg-gray-800 rounded-2xl shadow-lg">
                                     <div class="absolute top-4 left-4 text-gray-300 uppercase text-sm font-semibold">Español</div>
@@ -439,9 +440,29 @@
             const langForPrompt = normalizeString(state.language); 
             const extraPrompt = langForPrompt === 'italiano' ? 'Asegúrate de que las palabras italianas estén escritas de forma que faciliten la pronunciación nativa por un sistema de texto a voz.' : '';
             const existingWords = state.cards.map(c => c.source).join(', '); // Evita duplicados
-            const prompt = `Genera un array JSON de 10 flashcards para un hablante de español que aprende ${langForPrompt}. El tema es '${state.topic}'. Evita generar palabras o frases que ya están en esta lista: ${existingWords}. Cada objeto debe tener una clave "source" (en ${langForPrompt}) y "translation" (en español). ${extraPrompt} Responde únicamente con el array JSON.`;
             
-            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", responseSchema: { type: "ARRAY", items: { type: "OBJECT", properties: { "source": { "type": "STRING" }, "translation": { "type": "STRING" } }, required: ["source", "translation"] } } } };
+            // Modificación del prompt para solicitar la pronunciación fonética
+            const prompt = `Genera un array JSON de 10 flashcards para un hablante de español que aprende ${langForPrompt}. El tema es '${state.topic}'. Evita generar palabras o frases que ya están en esta lista: ${existingWords}. Cada objeto debe tener una clave "source" (en ${langForPrompt}), "translation" (en español) y "phonetic" (la pronunciación fonética de la palabra/frase en ${langForPrompt}). ${extraPrompt} Responde únicamente con el array JSON.`;
+            
+            // Modificación del responseSchema para incluir la clave "phonetic"
+            const payload = { 
+                contents: [{ role: "user", parts: [{ text: prompt }] }], 
+                generationConfig: { 
+                    responseMimeType: "application/json", 
+                    responseSchema: { 
+                        type: "ARRAY", 
+                        items: { 
+                            type: "OBJECT", 
+                            properties: { 
+                                "source": { "type": "STRING" }, 
+                                "translation": { "type": "STRING" },
+                                "phonetic": { "type": "STRING" } // Nueva clave para la pronunciación fonética
+                            }, 
+                            required: ["source", "translation", "phonetic"] 
+                        } 
+                    } 
+                } 
+            };
             const apiKey = state.apiKey; // Usa la clave de API del estado
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             
